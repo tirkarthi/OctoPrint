@@ -34,6 +34,12 @@ try:
 except ImportError:
     import Queue as queue
 
+try:
+    from collections.abc import Iterable, MutableMapping
+except ImportError:
+    # python < 3.4
+    from collections import Iterable, MutableMapping
+
 # noinspection PyCompatibility
 from past.builtins import basestring, unicode
 
@@ -977,7 +983,7 @@ def dict_flatten(dictionary, prefix="", separator="."):
     result = {}
     for k, v in dictionary.items():
         key = prefix + separator + k if prefix else k
-        if isinstance(v, collections.MutableMapping):
+        if isinstance(v, MutableMapping):
             result.update(dict_flatten(v, prefix=key, separator=separator))
         else:
             result[key] = v
@@ -1703,11 +1709,6 @@ class CountedEvent(object):
 
 class InvariantContainer(object):
     def __init__(self, initial_data=None, guarantee_invariant=None):
-        try:
-            from collections.abc import Iterable
-        except ImportError:
-            # Python < 3.8
-            from collections import Iterable
         from threading import RLock
 
         if guarantee_invariant is None:
